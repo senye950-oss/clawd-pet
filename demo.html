@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clawd - Desktop Pet Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #1a1a2e; color: #e0e0e0;
+    min-height: 100vh; padding: 40px 20px;
+  }
+  .demo-container {
+    max-width: 600px; margin: 0 auto;
+  }
+  h1 { font-size: 28px; margin-bottom: 8px; }
+  .subtitle { color: #888; margin-bottom: 32px; font-size: 14px; }
+  .controls {
+    background: rgba(255,255,255,0.06); border-radius: 12px;
+    padding: 20px; margin-bottom: 20px;
+  }
+  .controls h3 { font-size: 14px; color: #aaa; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.08); color: #e0e0e0; font-size: 14px;
+    cursor: pointer; transition: background .2s;
+  }
+  .btn:hover { background: rgba(255,255,255,0.15); }
+  .btn.active { background: #c9525a; border-color: #c9525a; color: #fff; }
+  .code-block {
+    background: rgba(0,0,0,0.4); border-radius: 8px; padding: 16px;
+    font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.6;
+    overflow-x: auto; margin-top: 20px; color: #a8d8a8;
+  }
+  .code-block .comment { color: #666; }
+  .code-block .str { color: #ce9178; }
+  .code-block .kw { color: #569cd6; }
+  .hint { color: #666; font-size: 13px; margin-top: 16px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="demo-container">
+  <h1>Clawd</h1>
+  <p class="subtitle">A tiny pixel art desktop pet for your web page. Zero dependencies, ~5KB.</p>
+
+  <div class="controls">
+    <h3>State</h3>
+    <div class="btn-row">
+      <button class="btn" onclick="setState('idle')">Idle (sleep)</button>
+      <button class="btn" onclick="setState('busy')">Busy (working)</button>
+      <button class="btn" onclick="setState('offline')">Offline</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <h3>Actions</h3>
+    <div class="btn-row">
+      <button class="btn" onclick="pet.say('Hello world!')">Say something</button>
+      <button class="btn" onclick="pet.say('Custom message!', 5000)">Say (5s)</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <h3>Try it</h3>
+    <p class="hint">
+      Poke it. Drag it. Push it to the edge. Poke it 3+ times fast. Try at night (after 23:00). Long-press does nothing in the demo (in production, it opens the line editor).
+    </p>
+  </div>
+
+  <div class="code-block">
+    <span class="comment">// 1. Include the script</span><br>
+    <span class="kw">&lt;script</span> src=<span class="str">"clawd.js"</span><span class="kw">&gt;&lt;/script&gt;</span><br>
+    <br>
+    <span class="comment">// 2. Create and mount</span><br>
+    <span class="kw">var</span> pet = <span class="kw">new</span> Clawd({<br>
+    &nbsp;&nbsp;lines: {<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;poke: [<span class="str">'hi'</span>, <span class="str">'boop'</span>, <span class="str">'hey!'</span>],<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;rare: [<span class="str">'secret!'</span>]<br>
+    &nbsp;&nbsp;}<br>
+    }).mount()<br>
+    <br>
+    <span class="comment">// 3. Control state from your app</span><br>
+    pet.busy()  <span class="comment">// AI is responding</span><br>
+    pet.idle()  <span class="comment">// AI finished</span><br>
+    pet.offline() <span class="comment">// disconnected</span>
+  </div>
+</div>
+
+<script src="clawd.js"></script>
+<script>
+var pet = new Clawd({
+  lines: {
+    poke: ['hi!', 'hey', '(wiggles)', 'boop', 'sup?', '(nudge)', 'here!'],
+    night: ['sleepy?', 'zzz', 'night owl', 'shh'],
+    busy: ['coding...', 'sec', '(typing)', 'busy!'],
+    spam: ['ok ok ok!', 'chill!', '(flops)', 'stoooop'],
+    rare: ['(tiny cookie for you)', '<3', 'you found me']
+  },
+  busyPhrases: ['$ compiling...', '$ thinking...', '$ reading docs...', '$ fixing bugs...'],
+  onPoke: function(line, streak) {
+    console.log('Poked! Streak:', streak, 'Said:', line)
+  },
+  onStateChange: function(state) {
+    document.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('active') })
+    console.log('State changed to:', state)
+  }
+}).mount()
+
+function setState(s) {
+  document.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('active') })
+  event.target.classList.add('active')
+  if (s === 'busy') pet.busy()
+  else if (s === 'offline') pet.offline()
+  else pet.idle()
+}
+</script>
+</body>
+</html>
